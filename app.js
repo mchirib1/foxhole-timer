@@ -1,9 +1,75 @@
 // ==========================
-// Timer Logic
+// Constants
 // ==========================
 const WORK_DURATION = 5 * 60 * 1000;
 const REST_DURATION = 30 * 1000;
 
+// ==========================
+// Elements
+// ==========================
+const stateEl = document.getElementById("state");
+const timeEl = document.getElementById("time");
+const beep = document.getElementById("beep");
+
+const startBtn = document.getElementById("startBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+// ==========================
+// Audio Setup
+// ==========================
+let audioUnlocked = false;
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function unlockAudio() {
+  if (audioUnlocked) return;
+
+  beep.play().then(() => {
+    beep.pause();
+    beep.currentTime = 0;
+    audioUnlocked = true;
+  }).catch(() => {});
+
+  if (audioCtx.state === "suspended") {
+    audioCtx.resume();
+  }
+}
+
+// Unlock on first interaction
+document.addEventListener("click", unlockAudio);
+document.addEventListener("keydown", unlockAudio);
+
+function playFallbackBeep() {
+  const oscillator = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  oscillator.type = "square";
+  oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime);
+
+  gain.gain.setValueAtTime(1, audioCtx.currentTime);
+
+  oscillator.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + 0.2);
+}
+
+function playBeep() {
+  if (!audioUnlocked) return;
+
+  beep.pause();
+  beep.currentTime = 0;
+  beep.volume = 1.0;
+
+  beep.play().catch(() => {
+    playFallbackBeep();
+  });
+}
+
+// ==========================
+// Timer Logic
+// ==========================
 class IntervalTimer {
   constructor(onTick, onSwitch) {
     this.onTick = onTick;
@@ -74,10 +140,6 @@ class IntervalTimer {
 // ==========================
 // UI Rendering
 // ==========================
-const stateEl = document.getElementById("state");
-const timeEl = document.getElementById("time");
-const beep = document.getElementById("beep");
-
 function formatTime(ms) {
   const totalSec = Math.ceil(ms / 1000);
   const min = String(Math.floor(totalSec / 60)).padStart(2, "0");
@@ -90,31 +152,41 @@ function renderTime(ms) {
 }
 
 function renderState(isWork) {
-  stateEl.textContent = isWork ? "POHARRA Deez nutz Gabe" : "REST";
+  stateEl.textContent = isWork ? "WORK" : "REST";
   stateEl.className = isWork ? "work" : "rest";
 
-  // play beep
-  beep.currentTime = 0;
-  beep.play().catch(() => {});
+  playBeep();
 }
 
 // ==========================
-// Input Handling (Remote)
+// Initialize Timer
 // ==========================
-const startBtn = document.getElementById("startBtn");
-const pauseBtn = document.getElementById("pauseBtn");
-const resetBtn = document.getElementById("resetBtn");
-
 const timer = new IntervalTimer(renderTime, renderState);
 
-// Button clicks
+// ==========================
+// Input Handling
+// ==========================
 startBtn.addEventListener("click", () => timer.start());
 pauseBtn.addEventListener("click", () => timer.pause());
 resetBtn.addEventListener("click", () => timer.reset());
 
-// Remote / keyboard support
+// D-pad navigation (important for Fire TV)
+const buttons = [startBtn, pauseBtn, resetBtn];
+
 document.addEventListener("keydown", (e) => {
+  let index = buttons.indexOf(document.activeElement);
+
   switch (e.key) {
+    case "ArrowRight":
+      index = (index + 1) % buttons.length;
+      buttons[index].focus();
+      break;
+
+    case "ArrowLeft":
+      index = (index - 1 + buttons.length) % buttons.length;
+      buttons[index].focus();
+      break;
+
     case "Enter":
       document.activeElement.click();
       break;
@@ -130,6 +202,8 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// Initial render
+// ==========================
+// Initial State
+// ==========================
 timer.reset();
 startBtn.focus();
