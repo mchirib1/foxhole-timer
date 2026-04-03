@@ -3,6 +3,8 @@
 // ==========================
 const WORK_DURATION = 5 * 60 * 1000;
 const REST_DURATION = 30 * 1000;
+// const WORK_DURATION = 5 * 1000;
+// const REST_DURATION = 5 * 1000;
 
 // ==========================
 // Elements
@@ -152,7 +154,7 @@ function renderTime(ms) {
 }
 
 function renderState(isWork) {
-  stateEl.textContent = isWork ? "WORK" : "REST";
+  stateEl.textContent = isWork ? "DO JITS NOW GO!" : "staaaaaaaaaahhhhhpppppppp";
   stateEl.className = isWork ? "work" : "rest";
 
   playBeep();

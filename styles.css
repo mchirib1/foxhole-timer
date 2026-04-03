@@ -3,20 +3,37 @@ body {
   background: black;
   color: white;
   font-family: Arial, sans-serif;
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  flex-direction: column; /* Stack elements vertically */
+  align-items: center; /* Center horizontally */
+  padding: 20px 0; /* Add top/bottom padding */
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
 }
 
-/* Main container */
+/* Title styling */
+.title {
+  font-size: 80px;
+  font-weight: bold;
+  margin-bottom: 40px;
+  color: white;
+  text-shadow: 0 0 10px #00ff88;
+  width: 100%; /* Ensure full width */
+  text-align: center; /* Force center alignment */
+}
+
+/* Main app container */
 #app {
   text-align: center;
+  flex: 1; /* Take remaining space */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center vertically */
 }
 
 /* WORK / REST label */
 #state {
-  font-size: 80px;
+  font-size: 48px;
   font-weight: bold;
   margin-bottom: 20px;
 }
@@ -52,7 +69,6 @@ button {
   cursor: pointer;
 }
 
-/* Focus state for Fire TV */
 button:focus {
   outline: none;
   background: white;
