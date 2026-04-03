@@ -1,7 +1,7 @@
 // ==========================
 // Constants
 // ==========================
-const WORK_DURATION = 5 * 60 * 1000;
+const WORK_DURATION = 2 * 60 * 1000;
 const REST_DURATION = 30 * 1000;
 // const WORK_DURATION = 5 * 1000;
 // const REST_DURATION = 5 * 1000;
